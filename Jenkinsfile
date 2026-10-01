@@ -6,6 +6,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "dineshvl460/sample-node-app"
+        CONTAINER_NAME = "sample-node-app"
+        WEB_SERVER = "172.31.15.191"
     }
 
     stages {
@@ -62,6 +64,42 @@ pipeline {
                     docker push ${IMAGE_NAME}:${BUILD_NUMBER}
                     docker push ${IMAGE_NAME}:latest
                 '''
+            }
+        }
+        stage('Deploy to Webserver') {
+            steps {
+
+                sshagent(['webserver-id']) {
+
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no \
+                        ubuntu@${WEB_SERVER} << EOF
+
+                        echo "Connected to Webserver"
+
+                        echo "Pulling latest Docker image..."
+                        docker pull ${IMAGE_NAME}:latest
+
+                        echo "Stopping old container..."
+                        docker stop ${CONTAINER_NAME} || true
+
+                        echo "Removing old container..."
+                        docker rm ${CONTAINER_NAME} || true
+
+                        echo "Starting new container..."
+                        docker run -d \
+                            --name ${CONTAINER_NAME} \
+                            -p 3000:3000 \
+                            --restart unless-stopped \
+                            ${IMAGE_NAME}:latest
+
+                        echo "Deployment completed!"
+
+                        docker ps
+
+                        EOF
+                    '''
+                }
             }
         }
 
