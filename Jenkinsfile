@@ -73,7 +73,7 @@ pipeline {
 
                     sh '''
                         ssh -o StrictHostKeyChecking=no \
-                        ubuntu@${WEB_SERVER} 
+                        ubuntu@${WEB_SERVER} "
 
                         echo "Connected to Webserver"
 
@@ -96,7 +96,8 @@ pipeline {
                         echo "Deployment completed!"
 
                         docker ps
-                        
+                    "
+                '''     
                 }
             }
         }
