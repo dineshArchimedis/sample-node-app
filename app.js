@@ -5,12 +5,26 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-    res.send("Hello from Jenkins CI/CD!");
+    const nowIST = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        dateStyle: "full",
+        timeStyle: "medium"
+    });
+
+    res.send(`
+        <h2>Hello from Jenkins CI/CD!</h2>
+        <p>Current IST Time: ${nowIST}</p>
+    `);
 });
 
 app.get("/health", (req, res) => {
+    const nowIST = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata"
+    });
+
     res.json({
-        status: "UP"
+        status: "UP",
+        timestamp: nowIST
     });
 });
 
